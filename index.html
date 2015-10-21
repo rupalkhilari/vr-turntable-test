@@ -57,10 +57,10 @@
 				container = document.getElementById('webglviewer');
 				//document.appendChild( container );
 
-				camera = new THREE.PerspectiveCamera( 75, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 100000 );
-				camera.position.x = 400;
-				camera.position.y = 200;
-				camera.position.z = 400;
+				camera = new THREE.PerspectiveCamera( 90, SCREEN_WIDTH / SCREEN_HEIGHT, 0.001, 700 );
+				camera.position.x = 0;
+				camera.position.y = 15;
+				camera.position.z = 0;
 
 				scene = new THREE.Scene();
 				scene.add(camera);
@@ -79,9 +79,9 @@
 				// Our initial control fallback with mouse/touch events in case DeviceOrientation is not enabled
 		        controls = new THREE.OrbitControls(camera, element);
 		        controls.target.set(
-		          camera.position.x - 400,
-		          camera.position.y - 200,
-		          camera.position.z - 400
+		          camera.position.x + 0.15,
+		          camera.position.y,
+		          camera.position.z
 		        );
 		        controls.noPan = true;
 		        controls.noZoom = true;
