@@ -1,1 +1,190 @@
-My Page
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>obj tester</title>
+		    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+			<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				background:#fff;
+				padding:0;
+				margin:0;
+				overflow:hidden;
+				font-family:georgia;
+				text-align:center;
+			}
+			#webglviewer {
+        		bottom: 0;
+        		left: 0;
+        		position: absolute;
+        		right: 0;
+        		top: 0;
+      		}
+		</style>
+	</head>
+
+	<body>
+   		<div id="webglviewer"></div>
+    	<script src="./js/three.min.js"></script>
+    	<script src="./js/StereoEffect.js"></script>
+    	<script src="./js/DeviceOrientationControls.js"></script>
+    	<script src="./js/OrbitControls.js"></script>
+		<script>
+
+			var SCREEN_WIDTH = window.innerWidth;
+			var SCREEN_HEIGHT = window.innerHeight;
+
+			var container;
+
+			var camera, scene;
+			var webglRenderer;
+
+			var mesh, zmesh, geometry;
+
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+			
+			var meshes = [];
+
+			// extra variables.
+			var controls, element, effect, rotate = false;
+			init();
+			//animate();
+
+			function init() {
+
+				//container = document.createElement( 'div' );
+				container = document.getElementById('webglviewer');
+				//document.appendChild( container );
+
+				camera = new THREE.PerspectiveCamera( 75, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 100000 );
+				camera.position.x = 400;
+				camera.position.y = 200;
+				camera.position.z = 400;
+
+				scene = new THREE.Scene();
+				scene.add(camera);
+
+
+				// RENDERER
+				webglRenderer = new THREE.WebGLRenderer();
+				webglRenderer.setSize( SCREEN_WIDTH, SCREEN_HEIGHT );
+				//webglRenderer.domElement.style.position = "relative";
+
+				element = webglRenderer.domElement;
+
+				// to turn it into a split view.
+				effect = new THREE.StereoEffect(webglRenderer);
+				// Add the orbit and device orientation controls. 
+				// Our initial control fallback with mouse/touch events in case DeviceOrientation is not enabled
+		        controls = new THREE.OrbitControls(camera, element);
+		        controls.target.set(
+		          camera.position.x - 400,
+		          camera.position.y - 200,
+		          camera.position.z - 400
+		        );
+		        controls.noPan = true;
+		        controls.noZoom = true;
+		        // Our preferred controls via DeviceOrientation
+		        function setOrientationControls(e) {
+		          if (!e.alpha) {
+		            return;
+		          }
+		          controls = new THREE.DeviceOrientationControls(camera, true);
+		          controls.connect();
+		          controls.update();
+		          element.addEventListener('click', fullscreen, false);
+		          window.removeEventListener('deviceorientation', setOrientationControls, true);
+		        }
+		        window.addEventListener('deviceorientation', setOrientationControls, true);
+
+
+				// LIGHTS
+				var ambient = new THREE.AmbientLight( 0x666666 );
+				scene.add( ambient );
+
+				var directionalLight = new THREE.DirectionalLight( 0xffeedd );
+				directionalLight.position.set( 0, 70, 100 ).normalize();
+				scene.add( directionalLight );
+
+				container.appendChild( webglRenderer.domElement );
+
+				var loader = new THREE.JSONLoader(),
+				callbackKey   = function( geometry ) { createScene( geometry,  0, 0, 0, 15, "res/uvcolor.jpg" ) };
+				loader.load( "res/chameleon.json", callbackKey );
+
+				window.addEventListener( 'resize', resize, false );
+				window.addEventListener('click', toggleRotation, false);
+				animate();
+			}
+
+			function toggleRotation() {
+				if (rotate == true) {
+					rotate = false;
+				}
+				else {
+					rotate = true;
+				}
+			}
+			function resize() {
+			    var width = container.offsetWidth;
+			    var height = container.offsetHeight;
+			    camera.aspect = width / height;
+			    camera.updateProjectionMatrix();
+			    webglRenderer.setSize(width, height);
+			    effect.setSize(width, height);
+			}
+
+		    function fullscreen() {
+	        	if (container.requestFullscreen) {
+	          		container.requestFullscreen();
+	        	} else if (container.msRequestFullscreen) {
+	          		container.msRequestFullscreen();
+	        	} else if (container.mozRequestFullScreen) {
+	          		container.mozRequestFullScreen();
+	        	} else if (container.webkitRequestFullscreen) {
+	          		container.webkitRequestFullscreen();
+	        	}
+      		}
+			function createScene( geometry, x, y, z, scale, tmap ) {
+				zmesh = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture(tmap)}));
+				zmesh.position.set( x, y, z );
+				zmesh.scale.set( scale, scale, scale );
+				meshes.push(zmesh);
+				scene.add( zmesh );
+			}
+
+			function onWindowResize() {
+
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				webglRenderer.setSize( window.innerWidth, window.innerHeight );
+			}
+
+			function animate() {
+				if (rotate) {
+					for(var i = 0; i < meshes.length; i++){
+						meshes[i].rotation.y += .05;
+					}
+				}
+				requestAnimationFrame( animate );
+				update();
+				render();
+			}
+			function update() {
+				resize();
+        		camera.updateProjectionMatrix();
+        		controls.update();
+			}
+			function render() {
+				camera.lookAt( scene.position );
+				effect.render(scene, camera);
+			}
+		</script>
+
+	</body>
+</html>
