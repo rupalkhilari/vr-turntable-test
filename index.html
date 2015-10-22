@@ -95,8 +95,10 @@
 		          controls.connect();
 		          controls.update();
 		          element.addEventListener('click', fullscreen, false);
-		        	zmesh.position.set( 0, 0, -100 );
-		          window.removeEventListener('deviceorientation', setOrientationControls, true);
+		          if (zmesh !=null) {
+		          	zmesh.position.set(0, 0, -100);
+		          }
+		          // window.removeEventListener('deviceorientation', setOrientationControls, true);
 		        }
 		        window.addEventListener('deviceorientation', setOrientationControls, true);
 
