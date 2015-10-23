@@ -94,11 +94,12 @@
 		          controls = new THREE.DeviceOrientationControls(camera, true);
 		          controls.connect();
 		          controls.update();
+		          controls.align();
 		          element.addEventListener('click', fullscreen, false);
 		          if (zmesh !=null) {
 		          	zmesh.position.set(0, 0, -100);
 		          }
-		          // window.removeEventListener('deviceorientation', setOrientationControls, true);
+		          window.removeEventListener('deviceorientation', setOrientationControls, true);
 		        }
 		        window.addEventListener('deviceorientation', setOrientationControls, true);
 
